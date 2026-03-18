@@ -1,0 +1,3 @@
+[tool.black]
+line-length = 88
+skip-string-normalization = true  # tells Black Formatter to leave single quotes alone

@@ -3,5 +3,5 @@
 .DS_Store/
 
 .env
-papers_db/
-papers/
+papers_db/*.sqlite3
+papers/*.pdf
