@@ -1,0 +1,7 @@
+/_deprecated/
+.idea/
+.DS_Store/
+
+.env
+papers_db/
+papers/

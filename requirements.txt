@@ -1,0 +1,7 @@
+numpy==2.4.3
+packaging @ file:///opt/miniconda3/conda-bld/packaging_1761049079066/work
+pandas==3.0.1
+pypdf==6.9.1
+python-dateutil==2.9.0.post0
+six==1.17.0
+tqdm==4.67.3
