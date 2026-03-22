@@ -5,30 +5,37 @@ from src.logger import get_logger
 logger = get_logger(__name__)
 
 
-def extract_text_by_page(pdf_path: str) -> list[dict]:
-	"""
-	Extract text from a PDF, one dict per page.
+def extract_lines(pdf_path: str) -> list[dict]:
+    """
+    Extract text from a PDF as a flat, indexed list of lines.
 
-	Args:
-		pdf_path: path to PDF file (single PDF file only)
+    Each line carries its page number so page metadata is preserved
+    through the pipeline even when we process by section rather than page.
 
-	Returns:
-		List of dicts {'page': int, 'text': str}
-	"""
-	reader = PdfReader(pdf_path)
-	pages = []
-	full_text = ''
+    Args:
+        pdf_path: Path to the PDF file.
 
-	for i, page in enumerate(reader.pages, start = 1):
-		text = page.extract_text() or ''
-		if text.strip():
-			pages.append(
-					{
-						'page': i,
-						'text': text
-					}
-			)
-			full_text += text
+    Returns:
+        List of dicts with keys:
+            'line_idx' (int): global line index across the full document
+            'text'     (str): the line text
+            'page'     (int): 1-indexed page number
+    """
+    reader = PdfReader(pdf_path)
+    lines = []
+    line_idx = 0
 
-	logger.debug('Extracted %d pages from %s', len(pages), pdf_path)
-	return pages, full_text
+    for page_num, page in enumerate(reader.pages, start=1):
+        text = page.extract_text() or ''
+        for line in text.splitlines():
+            stripped = line.strip()
+            if stripped:
+                lines.append({
+                    'line_idx': line_idx,
+                    'text': stripped,
+                    'page': page_num,
+                })
+                line_idx += 1
+
+    logger.debug('Extracted %d lines from %s', len(lines), pdf_path)
+    return lines

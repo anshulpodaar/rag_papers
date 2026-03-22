@@ -1,9 +1,9 @@
 import os
 
-from src.chunker import chunk_pages
-from src.extractor import extract_text_by_page
+from src.chunker import chunk_sections
+from src.extractor import extract_lines
 from src.logger import get_logger
-from src.section_detector import attach_sections
+from src.section_detector import split_into_sections
 
 logger = get_logger(__name__)
 
@@ -15,16 +15,17 @@ if __name__ == '__main__':
 		if not paper.endswith('.pdf'):
 			continue
 
-		logger.debug('\n\n\nProcessing: %s', paper)
-
 		paper_path = os.path.join(papers_dir_path, paper)
-		pages, full_text = extract_text_by_page(paper_path)
+		lines = extract_lines(paper_path)
 
-		if not pages:
+		if not lines:
 			logger.warning('No text extracted from %s', paper)
 			continue
 
-		chunks = chunk_pages(pages)
-		chunks = attach_sections(chunks)
+		blocks = split_into_sections(lines)
+		chunks = chunk_sections(blocks)
 
-		logger.info('Sample chunk: page=%d section=%s', chunks[0]['page'], chunks[0]['section'])
+		logger.info(
+				'Paper: %s | Lines: %d | Blocks: %d | Chunks: %d',
+				paper, len(lines), len(blocks), len(chunks)
+		)

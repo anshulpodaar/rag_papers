@@ -8,33 +8,48 @@ from src.logger import get_logger
 logger = get_logger(__name__)
 
 
-def chunk_pages(pages: list[dict]) -> list[Optional[dict]]:
-	"""
-	Split extracted pages into overlapping text chunks.
+def chunk_sections(blocks: list[dict]) -> list[dict]:
+    """
+    Split section blocks into overlapping text chunks.
 
-	Args:
-		pages: List of dicts {'page': int, 'text': str} returned by extractor.extract_text_by_page().
+    Each chunk inherits the section and subsection label from its block,
+    and the page number of its first line.
 
-	Returns:
-		List of dicts {'page': int, 'text': str}
-	"""
-	chunk_size = config['chunking']['chunk_size']
-	chunk_overlap = config['chunking']['chunk_overlap']
+    Args:
+        blocks: List of section block dicts as returned by
+            section_detector.split_into_sections().
 
-	splitter = RecursiveCharacterTextSplitter(
-			chunk_size = chunk_size,
-			chunk_overlap = chunk_overlap,
-	)
+    Returns:
+        List of chunk dicts with keys:
+            'text'       (str): chunk text
+            'section'    (str): top-level section title
+            'subsection' (str | None): subsection title, or None
+            'page'       (int): page of the first line in this chunk
+    """
+    chunk_size = config['chunking']['chunk_size']
+    chunk_overlap = config['chunking']['chunk_overlap']
 
-	chunks = []
-	for page in pages:
-		for chunk_text in splitter.split_text(page['text']):
-			chunks.append(
-					{
-						'page': page['page'],
-						'text': chunk_text,
-					}
-			)
+    splitter = RecursiveCharacterTextSplitter(
+        chunk_size=chunk_size,
+        chunk_overlap=chunk_overlap,
+    )
 
-	logger.debug('Created %d chunks from %d pages', len(chunks), len(pages))
-	return chunks
+    chunks = []
+
+    for block in blocks:
+        if not block['lines']:
+            continue
+
+        block_text = '\n'.join(line['text'] for line in block['lines'])
+        first_page = block['lines'][0]['page']
+
+        for chunk_text in splitter.split_text(block_text):
+            chunks.append({
+                'text': chunk_text,
+                'section': block['section'],
+                'subsection': block['subsection'],
+                'page': first_page,
+            })
+
+    logger.debug('Created %d chunks from %d section blocks', len(chunks), len(blocks))
+    return chunks
