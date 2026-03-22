@@ -17,6 +17,7 @@ def extract_text_by_page(pdf_path: str) -> list[dict]:
 	"""
 	reader = PdfReader(pdf_path)
 	pages = []
+	full_text = ''
 
 	for i, page in enumerate(reader.pages, start = 1):
 		text = page.extract_text() or ''
@@ -27,6 +28,7 @@ def extract_text_by_page(pdf_path: str) -> list[dict]:
 						'text': text
 					}
 			)
+			full_text += text
 
 	logger.debug('Extracted %d pages from %s', len(pages), pdf_path)
-	return pages
+	return pages, full_text
