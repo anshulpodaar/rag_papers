@@ -5,4 +5,5 @@
 .env
 papers_db/*.sqlite3
 papers/*.pdf
+papers_db/
 logs/*.log

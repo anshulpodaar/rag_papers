@@ -1,10 +1,11 @@
 import os
 
 from src.chunker import chunk_sections
+from src.embedder import Embedder
 from src.extractor import extract_lines
 from src.logger import get_logger
 from src.section_detector import split_into_sections
-from src.embedder import Embedder
+from src.vector_store import VectorStore
 
 logger = get_logger(__name__)
 
@@ -33,5 +34,8 @@ if __name__ == '__main__':
 
 		embedder = Embedder()
 		chunks_embedded = embedder.embed(chunks)
-
 		logger.info('First chunk embedding length: %d', len(chunks_embedded[0]['embedding']))
+
+		store = VectorStore()
+		store.upsert(chunks, source = paper)
+		logger.info('Total chunks in store: %d', store.count)
