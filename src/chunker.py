@@ -1,5 +1,3 @@
-from typing import Optional
-
 from langchain_text_splitters import RecursiveCharacterTextSplitter
 
 from src.config import config

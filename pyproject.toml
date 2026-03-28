@@ -1,3 +1,35 @@
 [tool.black]
 line-length = 88
-skip-string-normalization = true  # tells Black Formatter to leave single quotes alone
+skip-string-normalization = true  # leave single quotes alone
+
+[tool.ruff]
+line-length = 88
+target-version = "py311"
+
+[tool.ruff.lint]
+select = [
+    "E",      # pycodestyle errors
+    "W",      # pycodestyle warnings
+    "F",      # pyflakes
+    "I",      # isort
+    "D",      # pydocstyle
+    "UP",     # pyupgrade
+    "B",      # flake8-bugbear
+    "SIM",    # flake8-simplify
+]
+ignore = [
+    "D100",   # Missing docstring in public module (optional)
+    "D104",   # Missing docstring in public package
+    "D203",   # 1 blank line before class docstring (conflicts with D211)
+    "D213",   # Multi-line summary second line (conflicts with D212)
+]
+
+[tool.ruff.lint.pydocstyle]
+convention = "google"
+
+[tool.ruff.lint.isort]
+known-first-party = ["src"]
+
+[tool.ruff.format]
+quote-style = "single"
+docstring-code-format = true
