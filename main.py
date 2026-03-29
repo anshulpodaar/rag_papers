@@ -1,3 +1,5 @@
+"""Main entry point for the RAG pipeline."""
+
 import os
 from pathlib import Path
 
@@ -6,15 +8,26 @@ from src.config import config
 from src.embedder import Embedder
 from src.extractor import extract_lines
 from src.logger import get_logger
+from src.qa_engine import QAEngine
+from src.retriever import Retriever
 from src.section_detector import split_into_sections
 from src.vector_store import VectorStore
 
 logger = get_logger(__name__)
 
-if __name__ == '__main__':
+
+def ingest_papers() -> None:
+    """
+    Ingest all PDFs from the configured papers directory.
+
+    Extracts text, chunks, embeds, and stores in vector database.
+    """
     papers_dir_path = config['papers']['path']
     papers_filetypes = config['papers']['filetypes']
     papers_list = sorted(os.listdir(papers_dir_path))
+
+    embedder = Embedder()
+    store = VectorStore()
 
     for paper in papers_list:
         if Path(paper).suffix not in papers_filetypes:
@@ -32,12 +45,15 @@ if __name__ == '__main__':
 
         logger.info(
             'Paper: %s | Lines: %d | Blocks: %d | Chunks: %d',
-            paper, len(lines), len(blocks), len(chunks)
+            paper, len(lines), len(blocks), len(chunks),
         )
 
-        embedder = Embedder()
         chunks_embedded = embedder.embed(chunks)
-        logger.info('First chunk embedding length: %d', len(chunks_embedded[0]['embedding']))
+        store.upsert(chunks_embedded, source=paper)
+
+    logger.info('Ingestion complete. Total chunks in store: %d', store.count)
+
+
 def query_papers(question: str, top_k: int = 5) -> dict:
     """
     Query the RAG pipeline with a question.
