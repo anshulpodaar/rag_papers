@@ -3,6 +3,9 @@
 .DS_Store/
 
 .env
-papers_db/*.sqlite3
-papers/*.pdf
+data/vector_db/
+data/papers/*.pdf
+papers_db/
 logs/*.log
+/data/papers
+/papers_db

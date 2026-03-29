@@ -1,14 +1,18 @@
+papers:
+  path: ./papers
+  filetypes: ['.pdf']
+
+vector_store:
+  db_path: ./papers_db
+  collection_name: papers
+  n_results: 6
+
 chunking:
   chunk_size: 600
   chunk_overlap: 75
 
 embedding:
   model_name: all-MiniLM-L6-v2
-
-vector_store:
-  db_path: ./papers_db
-  collection_name: papers
-  n_results: 6
 
 claude:
   model: claude-sonnet-4-20250514

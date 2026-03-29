@@ -1,5 +1,3 @@
-from typing import Optional
-
 from langchain_text_splitters import RecursiveCharacterTextSplitter
 
 from src.config import config
@@ -26,8 +24,8 @@ def chunk_sections(blocks: list[dict]) -> list[dict]:
             'subsection' (str | None): subsection title, or None
             'page'       (int): page of the first line in this chunk
     """
-    chunk_size = config['chunking']['chunk_size']
-    chunk_overlap = config['chunking']['chunk_overlap']
+    chunk_size = config.get('chunking', {}).get('chunk_size', 600)
+    chunk_overlap = config.get('chunking', {}).get('chunk_overlap', 75)
 
     splitter = RecursiveCharacterTextSplitter(
         chunk_size=chunk_size,
