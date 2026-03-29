@@ -1,0 +1,6 @@
+[core]
+    remote = myremote
+['remote "myremote"']
+    url = gdrive://1fmeM6UhlAiBCwsIha6Z8nFL9S1f4gGh9
+    gdrive_use_service_account = true
+    gdrive_service_account_json_file_path = /Users/apodaar/.config/dvc/gdrive-credentials.json
