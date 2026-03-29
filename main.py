@@ -38,7 +38,47 @@ if __name__ == '__main__':
         embedder = Embedder()
         chunks_embedded = embedder.embed(chunks)
         logger.info('First chunk embedding length: %d', len(chunks_embedded[0]['embedding']))
+def query_papers(question: str, top_k: int = 5) -> dict:
+    """
+    Query the RAG pipeline with a question.
 
-        store = VectorStore()
-        store.upsert(chunks, source=paper)
-        logger.info('Total chunks in store: %d', store.count)
+    Args:
+        question: Natural language question.
+        top_k: Number of chunks to retrieve.
+
+    Returns:
+        Dict with 'answer', 'sources', 'model', and 'usage'.
+    """
+    embedder = Embedder()
+    store = VectorStore()
+    retriever = Retriever(embedder, store)
+    qa = QAEngine(retriever)
+
+    result = qa.ask_with_sources(question, top_k=top_k)
+    return result
+
+
+if __name__ == '__main__':
+    # Ingest papers (run once or when papers change)
+    # ingest_papers()
+
+    # Example query
+    question = 'What is the attention mechanism and how does it work?'
+    logger.info('Question: %s', question)
+
+    result = query_papers(question)
+
+    print('\n' + '=' * 60)
+    print('ANSWER:')
+    print('=' * 60)
+    print(result['answer'])
+
+    print('\n' + '-' * 60)
+    print('SOURCES:')
+    print('-' * 60)
+    for src in result['sources']:
+        print(f"  • {src['source']} | {src['section']} | p.{src['page']} (score: {src['score']})")
+
+    print('\n' + '-' * 60)
+    print(f"Model: {result['model']}")
+    print(f"Tokens: {result['usage']['input_tokens']} in / {result['usage']['output_tokens']} out")
