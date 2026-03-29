@@ -1,6 +1,8 @@
 import os
+from pathlib import Path
 
 from src.chunker import chunk_sections
+from src.config import config
 from src.embedder import Embedder
 from src.extractor import extract_lines
 from src.logger import get_logger
@@ -10,11 +12,12 @@ from src.vector_store import VectorStore
 logger = get_logger(__name__)
 
 if __name__ == '__main__':
-    papers_dir_path = './papers'
+    papers_dir_path = config['papers']['path']
+    papers_filetypes = config['papers']['filetypes']
     papers_list = sorted(os.listdir(papers_dir_path))
 
     for paper in papers_list:
-        if not paper.endswith('.pdf'):
+        if Path(paper).suffix not in papers_filetypes:
             continue
 
         paper_path = os.path.join(papers_dir_path, paper)
