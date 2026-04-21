@@ -2,6 +2,7 @@
 pypdf>=5.0.0
 langchain-text-splitters>=0.2.0
 pyyaml>=6.0
+python-dotenv>=1.0.0
 
 # Vector store & embeddings
 chromadb>=0.4.0
@@ -10,7 +11,5 @@ sentence-transformers>=2.2.0
 # LLM
 anthropic>=0.18.0
 
-# Data versioning
-dvc>=3.0.0
-dvc-gdrive>=3.0.0
-dvc-s3>=3.0.0
+# Experiment tracking
+mlflow>=2.10.0

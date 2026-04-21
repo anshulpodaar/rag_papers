@@ -1,11 +1,24 @@
 /_deprecated/
 .idea/
-.DS_Store/
+.DS_Store
+.kiro/
 
+# Python
+__pycache__/
+*.pyc
+*.pyo
+
+# Environment
 .env
+
+# Data & artifacts
 data/vector_db/
 data/papers/*.pdf
 papers_db/
 logs/*.log
 /data/papers
 /papers_db
+
+# Experiments
+experiments/
+mlruns/
