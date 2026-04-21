@@ -83,20 +83,54 @@ def cmd_ask(args: argparse.Namespace) -> None:
         context_window=args.context_window,
     )
 
+    transparency = result['transparency']
+
+    # Answer
     print('\n' + '=' * 60)
     print('ANSWER:')
     print('=' * 60)
     print(result['answer'])
 
+    # Confidence & Risk (always show)
+    print('\n' + '-' * 60)
+    print('CONFIDENCE & RISK:')
+    print('-' * 60)
+    conf = transparency['confidence']
+    risk = transparency['hallucination_risk']
+    print(f"  Confidence:        {conf['level'].upper()} ({conf['overall_score']:.2f})")
+    print(f"  Hallucination Risk: {risk['level'].upper()} ({risk['score']:.2f})")
+    if risk['factors']:
+        print(f"  Risk Factors:      {', '.join(risk['factors'])}")
+
+    # Sources
     if args.show_sources:
         print('\n' + '-' * 60)
         print('SOURCES:')
         print('-' * 60)
-        for src in result['sources']:
-            print(f"  • {src['source']} | {src['section']} | p.{src['page']} (score: {src['score']:.4f})")
+        for src in transparency['sources']:
+            sections = ', '.join(src['sections'][:3])
+            if len(src['sections']) > 3:
+                sections += f" (+{len(src['sections']) - 3} more)"
+            pages = ', '.join(str(p) for p in src['pages'][:5])
+            if len(src['pages']) > 5:
+                pages += f" (+{len(src['pages']) - 5} more)"
+            print(f"  • {src['source']}")
+            print(f"    Sections: {sections}")
+            print(f"    Pages: {pages}")
+            print(f"    Chunks: {src['chunk_count']} | Avg Score: {src['avg_score']:.4f} | Max: {src['max_score']:.4f}")
 
+    # Verbose: chunks and usage
     if args.verbose:
         print('\n' + '-' * 60)
+        print('RETRIEVED CHUNKS:')
+        print('-' * 60)
+        for i, chunk in enumerate(transparency['chunks_retrieved'], 1):
+            print(f"  [{i}] Score: {chunk['score']:.4f}")
+            print(f"      {chunk['source']} | {chunk['section']} | p.{chunk['page']}")
+            print(f"      {chunk['text'][:150]}...")
+            print()
+
+        print('-' * 60)
         print(f"Model: {result['model']}")
         print(f"Tokens: {result['usage']['input_tokens']} in / {result['usage']['output_tokens']} out")
 
@@ -200,7 +234,7 @@ def main() -> None:
     ask_parser.add_argument('-k', '--top-k', type=int, default=5, help='Number of chunks to retrieve')
     ask_parser.add_argument('-c', '--context-window', type=int, default=0, help='Context window size')
     ask_parser.add_argument('-s', '--show-sources', action='store_true', help='Show source citations')
-    ask_parser.add_argument('-v', '--verbose', action='store_true', help='Show model and token usage')
+    ask_parser.add_argument('-v', '--verbose', action='store_true', help='Show chunks and token usage')
     ask_parser.set_defaults(func=cmd_ask)
 
     # search command
