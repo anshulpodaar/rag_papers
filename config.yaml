@@ -1,5 +1,5 @@
 papers:
-  path: ./papers
+  path: ./data/papers
   filetypes: ['.pdf']
 
 vector_store:
@@ -17,3 +17,13 @@ embedding:
 claude:
   model: claude-sonnet-4-20250514
   max_tokens: 1024
+
+tracking:
+  backend: both  # Options: json, mlflow, both
+  json:
+    experiments_dir: ./experiments
+  mlflow:
+    experiment_name: rag_papers
+    tracking_uri: null  # null = local ./mlruns
+
+# TODO: check out BedRock, S3
