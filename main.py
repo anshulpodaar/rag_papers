@@ -76,7 +76,7 @@ def query_papers(question: str, top_k: int = 5) -> dict:
 
 if __name__ == '__main__':
     # Ingest papers (run once or when papers change)
-    # ingest_papers()
+    ingest_papers()
 
     # Example query
     question = 'What is the attention mechanism and how does it work?'

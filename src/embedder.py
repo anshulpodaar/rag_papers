@@ -12,7 +12,7 @@ class Embedder:
     """
     Loads a sentence-transformers model and embeds text.
 
-    Initialises the model once and reuses it across calls — loading
+    Initializes the model once and reuses it across calls — loading
     a transformer model is expensive and should never happen per-chunk.
 
     Args:

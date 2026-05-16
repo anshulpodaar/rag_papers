@@ -3,7 +3,7 @@ papers:
   filetypes: ['.pdf']
 
 vector_store:
-  db_path: ./papers_db
+  db_path: ./data/vector_db
   collection_name: papers
   n_results: 6
 
