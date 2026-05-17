@@ -116,7 +116,16 @@ class Retriever:
             end = min(len(source_chunks), current_idx + context_window + 1)
 
             for i in range(start, end):
-                chunk_id = f"{source}_{i}"
+                chunk_id = f'{source}_{i}'
+                if chunk_id not in seen_ids:
+                    seen_ids.add(chunk_id)
+                    # Shallow copy to avoid mutating the original dict
+                    # Alternative: {**source_chunks[i], 'score': ...}
+                    chunk = source_chunks[i].copy()
+                    chunk['score'] = result['score'] if i == current_idx else 0.0
+                    expanded.append(chunk)
+
+        return expanded
 
     def _embed_query(self, query: str) -> list[float]:
         """
@@ -128,19 +137,4 @@ class Retriever:
         Returns:
             Embedding vector as list of floats.
         """
-        return self._embedder.embed_text(query)
-
-    def _embed_query(self, query: str) -> list[float]:
-        """
-        Embed a single query string.
-
-        Args:
-            query: Query text to embed.
-
-        Returns:
-            Embedding vector as list of floats.
-        """
-        # Reuse embedder but for single text
-        dummy_chunk = [{'text': query}]
-        embedded = self._embedder.embed(dummy_chunk)
-        return embedded[0]['embedding']
+        return self._embedder.embed(query)[0]

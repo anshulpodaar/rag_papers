@@ -48,7 +48,7 @@ def ingest_papers() -> None:
             paper, len(lines), len(blocks), len(chunks),
         )
 
-        chunks_embedded = embedder.embed(chunks)
+        chunks_embedded = embedder.embed_chunks(chunks)
         store.upsert(chunks_embedded, source=paper)
 
     logger.info('Ingestion complete. Total chunks in store: %d', store.count)

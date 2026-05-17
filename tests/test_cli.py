@@ -120,7 +120,7 @@ def mock_cli_pipeline(monkeypatch):
     mock_embedder_cls = MagicMock()
     mock_embedder_inst = MagicMock()
     mock_embedder_cls.return_value = mock_embedder_inst
-    mock_embedder_inst.embed.return_value = MOCK_CHUNKS_EMBEDDED
+    mock_embedder_inst.embed_chunks.return_value = MOCK_CHUNKS_EMBEDDED
 
     mock_store_cls = MagicMock()
     mock_store_inst = MagicMock()

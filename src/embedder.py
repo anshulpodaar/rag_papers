@@ -12,7 +12,7 @@ class Embedder:
     """
     Loads a sentence-transformers model and embeds text.
 
-    Initializes the model once and reuses it across calls — loading
+    Initialises the model once and reuses it across calls — loading
     a transformer model is expensive and should never happen per-chunk.
 
     Args:
@@ -32,37 +32,49 @@ class Embedder:
         """Return embedding dimensions for this model."""
         return self._dimensions
 
-    def embed_text(self, text: str) -> list[float]:
+    def embed(self, text: str | list[str]) -> list[list[float]]:
         """
-        Embed a single text string.
+        Embed one or more text strings.
+
+        Accepts a single string or a list of strings. Always returns
+        a list of embedding vectors (one per input text).
 
         Args:
-            text: Text to embed.
+            text: A single text string or list of text strings to embed.
 
         Returns:
-            Embedding vector as list of floats.
-        """
-        vector = self._model.encode(text, show_progress_bar=False)
-        return vector.tolist()
+            List of embedding vectors (list of list of floats).
 
-    def embed_batch(self, texts: list[str]) -> list[list[float]]:
+        Raises:
+            TypeError: If input is not a string or list.
+            ValueError: If input is empty or contains empty/non-string items.
         """
-        Embed multiple texts efficiently.
+        if not isinstance(text, (str, list)):
+            raise TypeError(f'Expected str or list[str], got {type(text).__name__}.')
 
-        Args:
-            texts: List of text strings to embed.
+        if isinstance(text, str):
+            if not text.strip():
+                raise ValueError('Cannot embed empty string.')
+            text = [text]
 
-        Returns:
-            List of embedding vectors.
-        """
-        logger.info('Embedding %d texts', len(texts))
-        vectors = self._model.encode(texts, show_progress_bar=True)
+        if not text:
+            raise ValueError('Cannot embed empty input.')
+
+        if not all(isinstance(t, str) and t.strip() for t in text):
+            raise ValueError('All items must be non-empty strings.')
+
+        show_progress = len(text) > 1
+        logger.info('Embedding %d text(s)', len(text))
+        vectors = self._model.encode(text, show_progress_bar=show_progress)
         logger.info('Embedding complete')
         return vectors.tolist()
 
-    def embed(self, chunks: list[dict]) -> list[dict]:
+    def embed_chunks(self, chunks: list[dict]) -> list[dict]:
         """
         Embed a list of chunks, adding an 'embedding' key to each.
+
+        Pipeline convenience method that extracts text from chunk dicts,
+        embeds in batch, and attaches vectors back to the dicts.
 
         Args:
             chunks: List of chunk dicts with at least a 'text' key,
@@ -73,7 +85,7 @@ class Embedder:
             to each chunk.
         """
         texts = [c['text'] for c in chunks]
-        vectors = self.embed_batch(texts)
+        vectors = self.embed(texts)
 
         for chunk, vector in zip(chunks, vectors):
             chunk['embedding'] = vector

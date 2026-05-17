@@ -61,15 +61,17 @@ class TestRetrieve:
 
         Validates: Requirements 9.1
         """
+        from tests.conftest import MOCK_EMBEDDING_VECTOR
+
         from src.retriever import Retriever
+
+        # embed(str) returns list[list[float]], retriever takes [0]
+        mock_embedder.embed.return_value = [MOCK_EMBEDDING_VECTOR]
 
         retriever = Retriever(mock_embedder, mock_vector_store)
         retriever.retrieve(TEST_QUERY, top_k=DEFAULT_TOP_K)
 
-        # The second _embed_query (which actually runs) uses embed()
-        mock_embedder.embed.assert_called_once()
-        embed_call_arg = mock_embedder.embed.call_args[0][0]
-        assert embed_call_arg[0]['text'] == TEST_QUERY
+        mock_embedder.embed.assert_called_once_with(TEST_QUERY)
 
         mock_vector_store.query.assert_called_once()
         query_kwargs = mock_vector_store.query.call_args[1]
