@@ -22,13 +22,9 @@ def _make_mock_model(dimensions: int = EMBEDDING_DIMENSIONS) -> MagicMock:
     mock_model = MagicMock()
     mock_model.get_sentence_embedding_dimension.return_value = dimensions
 
-    # encode() returns numpy arrays (single text or batch)
-    single_vector = np.array([0.1] * dimensions)
-    batch_vectors = np.array([[0.1] * dimensions, [0.2] * dimensions])
-
     def encode_side_effect(text, **kwargs):
         if isinstance(text, str):
-            return single_vector
+            text = [text]
         return np.array([[0.1] * dimensions] * len(text))
 
     mock_model.encode.side_effect = encode_side_effect
@@ -54,16 +50,6 @@ class TestEmbedder:
         mock_st_class.assert_called_once_with(CONFIGURED_MODEL_NAME)
 
     @patch('src.embedder.SentenceTransformer')
-    def test_fallback_to_config_model_name_when_no_argument(self, mock_st_class):
-        """Verify Embedder uses config model name when no argument provided."""
-        mock_st_class.return_value = _make_mock_model()
-
-        from src.embedder import Embedder
-        embedder = Embedder()
-
-        mock_st_class.assert_called_once_with(CONFIGURED_MODEL_NAME)
-
-    @patch('src.embedder.SentenceTransformer')
     def test_instantiation_with_custom_model_name(self, mock_st_class):
         """Verify Embedder uses provided model_name over config default."""
         mock_st_class.return_value = _make_mock_model()
@@ -74,27 +60,28 @@ class TestEmbedder:
         mock_st_class.assert_called_once_with(CUSTOM_MODEL_NAME)
 
     @patch('src.embedder.SentenceTransformer')
-    def test_embed_text_returns_list_of_floats(self, mock_st_class):
-        """Verify embed_text() returns a list of floats via mocked encode()."""
+    def test_embed_single_string_returns_list_of_one_vector(self, mock_st_class):
+        """Verify embed('text') returns a list containing one embedding vector."""
         mock_st_class.return_value = _make_mock_model()
 
         from src.embedder import Embedder
         embedder = Embedder()
-        result = embedder.embed_text('Hello world')
+        result = embedder.embed('Hello world')
 
         assert isinstance(result, list)
-        assert len(result) == EMBEDDING_DIMENSIONS
-        assert all(isinstance(x, float) for x in result)
+        assert len(result) == 1
+        assert len(result[0]) == EMBEDDING_DIMENSIONS
+        assert all(isinstance(x, float) for x in result[0])
 
     @patch('src.embedder.SentenceTransformer')
-    def test_embed_batch_returns_list_of_embedding_vectors(self, mock_st_class):
-        """Verify embed_batch() returns a list of embedding vectors."""
+    def test_embed_list_of_strings_returns_list_of_vectors(self, mock_st_class):
+        """Verify embed(['a', 'b', 'c']) returns a list of embedding vectors."""
         mock_st_class.return_value = _make_mock_model()
 
         from src.embedder import Embedder
         embedder = Embedder()
         texts = ['First text', 'Second text', 'Third text']
-        result = embedder.embed_batch(texts)
+        result = embedder.embed(texts)
 
         assert isinstance(result, list)
         assert len(result) == len(texts)
@@ -103,8 +90,52 @@ class TestEmbedder:
             assert len(vector) == EMBEDDING_DIMENSIONS
 
     @patch('src.embedder.SentenceTransformer')
-    def test_embed_adds_embedding_key_to_each_chunk(self, mock_st_class):
-        """Verify embed() adds 'embedding' key to each chunk dict."""
+    def test_embed_raises_on_empty_input(self, mock_st_class):
+        """Verify embed([]) raises ValueError."""
+        mock_st_class.return_value = _make_mock_model()
+
+        from src.embedder import Embedder
+        embedder = Embedder()
+
+        with pytest.raises(ValueError, match='Cannot embed empty input'):
+            embedder.embed([])
+
+    @patch('src.embedder.SentenceTransformer')
+    def test_embed_raises_on_empty_string(self, mock_st_class):
+        """Verify embed('') raises ValueError."""
+        mock_st_class.return_value = _make_mock_model()
+
+        from src.embedder import Embedder
+        embedder = Embedder()
+
+        with pytest.raises(ValueError, match='Cannot embed empty string'):
+            embedder.embed('')
+
+    @patch('src.embedder.SentenceTransformer')
+    def test_embed_raises_on_none(self, mock_st_class):
+        """Verify embed(None) raises TypeError."""
+        mock_st_class.return_value = _make_mock_model()
+
+        from src.embedder import Embedder
+        embedder = Embedder()
+
+        with pytest.raises(TypeError, match='Expected str or list'):
+            embedder.embed(None)
+
+    @patch('src.embedder.SentenceTransformer')
+    def test_embed_raises_on_non_string_items(self, mock_st_class):
+        """Verify embed([123]) raises ValueError."""
+        mock_st_class.return_value = _make_mock_model()
+
+        from src.embedder import Embedder
+        embedder = Embedder()
+
+        with pytest.raises(ValueError, match='All items must be non-empty strings'):
+            embedder.embed([123, 'valid'])
+
+    @patch('src.embedder.SentenceTransformer')
+    def test_embed_chunks_adds_embedding_key_to_each_chunk(self, mock_st_class):
+        """Verify embed_chunks() adds 'embedding' key to each chunk dict."""
         mock_st_class.return_value = _make_mock_model()
 
         from src.embedder import Embedder
@@ -113,7 +144,7 @@ class TestEmbedder:
             {'text': 'First chunk', 'section': 'intro', 'page': 1},
             {'text': 'Second chunk', 'section': 'methods', 'page': 2},
         ]
-        result = embedder.embed(chunks)
+        result = embedder.embed_chunks(chunks)
 
         assert len(result) == 2
         for chunk in result:

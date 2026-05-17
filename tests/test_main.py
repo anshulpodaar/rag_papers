@@ -63,7 +63,7 @@ def mock_main_pipeline(monkeypatch):
     mock_embedder_cls = MagicMock()
     mock_embedder_inst = MagicMock()
     mock_embedder_cls.return_value = mock_embedder_inst
-    mock_embedder_inst.embed.return_value = MOCK_CHUNKS_EMBEDDED
+    mock_embedder_inst.embed_chunks.return_value = MOCK_CHUNKS_EMBEDDED
 
     mock_store_cls = MagicMock()
     mock_store_inst = MagicMock()
@@ -139,7 +139,7 @@ class TestIngestPapers:
 
         embedder = mock_main_pipeline['embedder']
         store = mock_main_pipeline['store']
-        assert embedder.embed.call_count == 2
+        assert embedder.embed_chunks.call_count == 2
         assert store.upsert.call_count == 2
 
     def test_ingest_skips_papers_with_no_extracted_text(
@@ -164,7 +164,7 @@ class TestIngestPapers:
         embedder = mock_main_pipeline['embedder']
         store = mock_main_pipeline['store']
         # Only paper_b should be embedded and stored
-        assert embedder.embed.call_count == 1
+        assert embedder.embed_chunks.call_count == 1
         assert store.upsert.call_count == 1
 
 

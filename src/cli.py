@@ -47,7 +47,7 @@ def cmd_ingest(args: argparse.Namespace) -> None:
 
         blocks = split_into_sections(lines)
         chunks = chunk_sections(blocks)
-        chunks_embedded = embedder.embed(chunks)
+        chunks_embedded = embedder.embed_chunks(chunks)
         store.upsert(chunks_embedded, source=paper)
 
         ingested += 1

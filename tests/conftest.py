@@ -158,15 +158,14 @@ def mock_embedder():
 
     mock = MagicMock(spec=Embedder)
     mock.dimensions = EMBEDDING_DIMENSIONS
-    mock.embed_text.return_value = MOCK_EMBEDDING_VECTOR
-    mock.embed_batch.return_value = [MOCK_EMBEDDING_VECTOR]
+    mock.embed.return_value = [MOCK_EMBEDDING_VECTOR]
 
-    def embed_side_effect(chunks):
+    def embed_chunks_side_effect(chunks):
         for chunk in chunks:
             chunk['embedding'] = MOCK_EMBEDDING_VECTOR
         return chunks
 
-    mock.embed.side_effect = embed_side_effect
+    mock.embed_chunks.side_effect = embed_chunks_side_effect
     return mock
 
 
