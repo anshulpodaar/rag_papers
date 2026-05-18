@@ -10,6 +10,10 @@ sentence-transformers>=2.2.0
 
 # LLM
 anthropic>=0.18.0
+langchain-anthropic>=1.0.0
 
 # Experiment tracking
 mlflow>=2.10.0
+
+# Evaluation
+ragas>=0.4.0

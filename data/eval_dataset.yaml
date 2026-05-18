@@ -1,0 +1,91 @@
+# Curated evaluation dataset for RAGAS scoring
+# Ground truth answers are concise summaries from the actual papers
+# Used to measure faithfulness, relevancy, context precision/recall
+
+samples:
+  # ── Attention Is All You Need ───────────────────────────────────────────────
+
+  - question: 'What is the Transformer architecture?'
+    ground_truth: >
+      The Transformer is a model architecture that relies entirely on
+      self-attention mechanisms, dispensing with recurrence and convolutions.
+      It uses stacked encoder-decoder layers with multi-head attention and
+      position-wise feed-forward networks.
+    source: 'NIPS-2017-attention-is-all-you-need-Paper.pdf'
+
+  - question: 'How does multi-head attention work?'
+    ground_truth: >
+      Multi-head attention runs multiple attention functions in parallel.
+      The input is linearly projected into queries, keys, and values multiple
+      times with different learned projections. The outputs are concatenated
+      and projected again. This allows the model to attend to information from
+      different representation subspaces at different positions.
+    source: 'NIPS-2017-attention-is-all-you-need-Paper.pdf'
+
+  - question: 'What is scaled dot-product attention?'
+    ground_truth: >
+      Scaled dot-product attention computes attention weights by taking the
+      dot product of queries with keys, dividing by the square root of the
+      key dimension, applying a softmax, and multiplying by the values.
+      The scaling factor prevents the dot products from growing too large.
+    source: 'NIPS-2017-attention-is-all-you-need-Paper.pdf'
+
+  - question: 'What BLEU scores did the Transformer achieve on English-to-German translation?'
+    ground_truth: >
+      The big Transformer model achieved a BLEU score of 28.4 on the
+      WMT 2014 English-to-German translation task, improving over the
+      best previously reported results by more than 2 BLEU points.
+    source: 'NIPS-2017-attention-is-all-you-need-Paper.pdf'
+
+  - question: 'Why does the Transformer use positional encoding?'
+    ground_truth: >
+      Since the Transformer contains no recurrence or convolution, positional
+      encodings are added to the input embeddings to give the model information
+      about the relative or absolute position of tokens in the sequence. The
+      paper uses sine and cosine functions of different frequencies.
+    source: 'NIPS-2017-attention-is-all-you-need-Paper.pdf'
+
+  # ── Emergent Tool Use From Multi-Agent Autocurricula ────────────────────────
+
+  - question: 'What is autocurricula in the context of multi-agent learning?'
+    ground_truth: >
+      Autocurricula refers to the phenomenon where competing agents create
+      a natural curriculum for each other through competition. As one team
+      improves its strategy, the opposing team must adapt, leading to
+      progressively more complex emergent behaviors without explicit
+      reward shaping.
+    source: 'Emergent Tool Use From Multi-Agent Autocurricula.pdf'
+
+  - question: 'What emergent behaviors were observed in the hide-and-seek game?'
+    ground_truth: >
+      Agents developed multiple distinct strategies through training. Hiders
+      learned to build shelters using boxes and walls, then learned to lock
+      objects in place. Seekers countered by learning to use ramps to climb
+      over barriers. Hiders then learned to lock ramps before seekers could
+      use them.
+    source: 'Emergent Tool Use From Multi-Agent Autocurricula.pdf'
+
+  - question: 'What environment was used for the multi-agent experiments?'
+    ground_truth: >
+      The experiments used a simulated physics environment with movable
+      objects (boxes, ramps, walls) where two teams of agents (hiders and
+      seekers) compete. Hiders are rewarded for avoiding the line of sight
+      of seekers, while seekers are rewarded for observing hiders.
+    source: 'Emergent Tool Use From Multi-Agent Autocurricula.pdf'
+
+  - question: 'How were the agents trained in the multi-agent autocurricula paper?'
+    ground_truth: >
+      Agents were trained using large-scale distributed reinforcement learning
+      with self-play. Each agent uses an independent policy optimised with PPO
+      (Proximal Policy Optimization). The agents share no parameters between
+      teams and learn purely from the competitive reward signal.
+    source: 'Emergent Tool Use From Multi-Agent Autocurricula.pdf'
+
+  - question: 'What transfer learning results were shown from the hide-and-seek agents?'
+    ground_truth: >
+      Agents trained in hide-and-seek transferred well to novel intelligence
+      tests and object manipulation tasks they were never explicitly trained
+      on. The emergent skills from multi-agent competition provided useful
+      representations for downstream tasks, outperforming agents trained
+      from scratch on those tasks.
+    source: 'Emergent Tool Use From Multi-Agent Autocurricula.pdf'
